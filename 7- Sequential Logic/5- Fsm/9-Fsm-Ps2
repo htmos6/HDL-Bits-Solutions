@@ -1,0 +1,59 @@
+module top_module(
+    input clk,
+    input [7:0] in,
+    input reset,    // Synchronous reset
+    output done); //
+
+    reg [1:0] state, next_state;
+    parameter A=0, B=1, C=2, D=3;
+	
+    always @(*) 
+        begin
+            done = 0;
+            if (reset)
+                begin 
+                    next_state = A;
+                end
+            else
+                begin
+                    case (state)
+                        A: begin
+                                if (in[3] == 1)
+                                    begin
+                                        next_state = B;
+                                    end
+                                else 
+                                    begin
+                                        next_state = A;
+                                    end   
+                            end
+                        B: begin
+                                begin
+                                    next_state = C;
+                                end   
+                            end
+                        C: begin
+                                begin
+                                    next_state = D;
+                                end   
+                            end
+                        D: begin // Needs to spend 1 cycle at state D to output done signal 1 clock cycle
+                                done = 1;
+                                if (in[3] == 1)
+                                    begin
+                                        next_state = B;
+                                    end
+                                else 
+                                    begin
+                                        next_state = A;
+                                    end   
+                            end
+                	endcase
+        	end
+		end
+    
+    always @ (posedge clk) begin
+        state <= next_state;
+    end
+    
+endmodule
